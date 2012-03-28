@@ -50,6 +50,7 @@ import boofcv.struct.image.MultiSpectral;
 import java.awt.Image;
 	import java.awt.image.BufferedImage;
 	import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 	/**
@@ -273,6 +274,8 @@ import java.util.List;
 		for( int i = 0; i < image.getNumBands(); i++ )
 			System.out.println("Result   "+i+" = "+image.getBand(i).get(x,y));
 	}
+	
+
  
 	/**
 	 * There is no real perfect way that everyone agrees on for converting color images into gray scale
@@ -302,6 +305,88 @@ import java.util.List;
 		
 	}
 
+	
+	public static List<Double> totalToPercentage( List<Integer> rgb ) {
+		
+		int total = 0;
+		for (int i=0; i<rgb.size(); i++) {
+			total += rgb.get(i);
+		}
+		
+		Double[] rgbp = { 0.0, 0.0, 0.0 };
+		
+		for (int i=0; i<rgb.size(); i++) {
+			rgbp[i] = (double) (rgb.get(i)/(double)total) * 100;
+		}
+		
+		return Arrays.asList(rgbp);
+		
+	}
+	
+	
+	public static List<Integer> getTotalRGB( BufferedImage input ) {
+		
+		ArrayList<Integer> aReturn = new ArrayList<Integer>();
+		
+		Integer[] rgb = {0,0,0};
+			
+		MultiSpectral<ImageUInt8> image = ConvertBufferedImage.convertFromMulti(input,null,ImageUInt8.class);
+		ConvertBufferedImage.orderBandsIntoRGB(image,input);
+
+		for( int i = 0; i < image.getNumBands(); i++ ) {
+			for ( int h = 0; h < image.getHeight(); h++ ) {
+				for ( int w = 0; w < image.getWidth(); w++ ) {
+					
+					rgb[i] += image.getBand(i).get(w, h);
+					
+				}
+			}
+		}
+		
+		return Arrays.asList(rgb);
+		
+	}
+	
+public static List<Integer> getDifferencialRGB( BufferedImage input ) {
+		
+		ArrayList<Integer> aReturn = new ArrayList<Integer>();
+		
+		Integer[] rgb = {0,0,0};
+			
+		MultiSpectral<ImageUInt8> image = ConvertBufferedImage.convertFromMulti(input,null,ImageUInt8.class);
+		ConvertBufferedImage.orderBandsIntoRGB(image,input);
+
+			for ( int h = 0; h < image.getHeight(); h++ ) {
+				for ( int w = 0; w < image.getWidth(); w++ ) {
+					
+					int total = 0;
+					for( int i = 0; i < image.getNumBands(); i++ ) {
+
+						total += image.getBand(i).get(w, h);
+					
+					}
+					
+					double moy = total /  image.getNumBands();
+					
+					//System.out.println("ttt "+moy);
+					
+					if ( total != 0 ) {
+						for( int i = 0; i < image.getNumBands(); i++ ) {
+	
+							if ( image.getBand(i).get(w, h) > moy+moy*0.20 ) {
+								rgb[i]++;	
+							}
+						
+						}
+					}
+					
+				}
+			}
+		
+		return Arrays.asList(rgb);
+		
+	}
+	
 	public static void main( String args[] ) {
 		
 		/*
@@ -312,13 +397,34 @@ import java.util.List;
 		System.out.println("Done");
 		*/
 		
-		BufferedImage input = UtilImageIO.loadImage("res/sea.jpg");
+		BufferedImage input = UtilImageIO.loadImage("res/img.jpg");
 		 
 		// Uncomment lines below to run each example
  
-		AnalyseurImage.independent(input);
+		List<Integer> list = AnalyseurImage.getTotalRGB(input);
+		for ( int i=0; i<list.size(); i++) {
+			System.out.println(i+" --> "+list.get(i));
+		}
+		
+		List<Double> listp = AnalyseurImage.totalToPercentage( list );
+		for ( int i=0; i<listp.size(); i++) {
+			System.out.println(i+" --> "+listp.get(i)+" %");
+		}
+		
+		AnalyseurImage.convertBufferedToRGB( input );
+
+		List<Integer> listd = AnalyseurImage.getDifferencialRGB(input);
+		for ( int i=0; i<listd.size(); i++) {
+			System.out.println(i+" --> "+listd.get(i));
+		}
+		
+		List<Double> listdp = AnalyseurImage.totalToPercentage( listd );
+		for ( int i=0; i<listdp.size(); i++) {
+			System.out.println(i+" --> "+listdp.get(i)+" %");
+		}
+		
 		//AnalyseurImage.convertBufferedToRGB(input);
-		AnalyseurImage.pixelAccess(input);
+		//AnalyseurImage.pixelAccess(input);
 		//AnalyseurImage.convertToGray(input);
 		// Image img =Image ;
 //		AnalyseurImage(input);
