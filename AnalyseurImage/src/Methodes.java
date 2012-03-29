@@ -354,32 +354,32 @@ public static List<Integer> getDifferencialRGB( BufferedImage input ) {
 		MultiSpectral<ImageUInt8> image = ConvertBufferedImage.convertFromMulti(input,null,ImageUInt8.class);
 		ConvertBufferedImage.orderBandsIntoRGB(image,input);
 
-			for ( int h = 0; h < image.getHeight(); h++ ) {
-				for ( int w = 0; w < image.getWidth(); w++ ) {
-					
-					int total = 0;
+		for ( int h = 0; h < image.getHeight(); h++ ) {
+			for ( int w = 0; w < image.getWidth(); w++ ) {
+				
+				int total = 0;
+				for( int i = 0; i < image.getNumBands(); i++ ) {
+
+					total += image.getBand(i).get(w, h);
+				
+				}
+				
+				double moy = total /  image.getNumBands();
+				
+				//System.out.println("ttt "+moy);
+				
+				if ( total != 0 ) {
 					for( int i = 0; i < image.getNumBands(); i++ ) {
 
-						total += image.getBand(i).get(w, h);
-					
-					}
-					
-					double moy = total /  image.getNumBands();
-					
-					//System.out.println("ttt "+moy);
-					
-					if ( total != 0 ) {
-						for( int i = 0; i < image.getNumBands(); i++ ) {
-	
-							if ( image.getBand(i).get(w, h) > moy+moy*0.20 ) {
-								rgb[i]++;	
-							}
-						
+						if ( image.getBand(i).get(w, h) > moy+moy*0.20 ) {
+							rgb[i]++;	
 						}
-					}
 					
+					}
 				}
+				
 			}
+		}
 		
 		return Arrays.asList(rgb);
 		
