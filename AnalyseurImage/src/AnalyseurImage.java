@@ -44,9 +44,25 @@ public class AnalyseurImage {
 		return null;
 	}
 	
+	public List<Double> analyse( BufferedImage imageBuf ) {
+		
+		Methodes.convertBufferedToRGB( imageBuf );
+
+		List<Integer> listd = Methodes.getDifferencialRGB(imageBuf);
+		for ( int i=0; i<listd.size(); i++) {
+			System.out.println(i+" --> "+listd.get(i));
+		}
+		
+		List<Double> listdp = Methodes.totalToPercentage( listd );
+		for ( int i=0; i<listdp.size(); i++) {
+			System.out.println(i+" --> "+listdp.get(i)+" %");
+		}
+		
+		return listdp;
+			
+	}
 	
 	public static void main( String args[] ) {
-	
 		
 		BufferedImage input = UtilImageIO.loadImage("res/img.jpg");
 		 
