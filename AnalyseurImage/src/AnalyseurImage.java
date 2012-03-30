@@ -1,44 +1,61 @@
 
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-
 import boofcv.io.image.UtilImageIO;
-
 
 public class AnalyseurImage {
 
-
+	public final String[] colors = { "Red", "Green", "Blue" };
 	
-	public List<Double> analyse( BufferedImage imageBuf ) {
+	int higher_index( List<Double> list ) {
+		
+		/* Detection d'une couleur dominante */
+		int max_index = -1;
+		double max_value = -1;
+		for (int i=0; i<list.size(); i++) {
+			if ( list.get(i) > max_value ) {
+				max_value = list.get(i);
+				max_index = i;
+				
+			}
+		}
+		
+		return max_index;
+		
+	}
+	
+	public List<Double> analyse_stat( BufferedImage imageBuf ) {
 		
 		Methodes.convertBufferedToRGB( imageBuf );
 
-		List<Integer> listd = Methodes.getDifferencialRGB(imageBuf);
-		for ( int i=0; i<listd.size(); i++) {
-			System.out.println(i+" --> "+listd.get(i));
-		}
-		
+		List<Integer> listd = Methodes.getDifferencialRGB( imageBuf );
 		List<Double> listdp = Methodes.totalToPercentage( listd );
-		for ( int i=0; i<listdp.size(); i++) {
-			System.out.println(i+" --> "+listdp.get(i)+" %");
-		}
+
 		
 		return listdp;
 			
 	}
 	
+	public String analyse_string( BufferedImage imageBuf ) {
+		
+		List<Double> list = this.analyse_stat(imageBuf);
+		
+		int max_index = this.higher_index( list );
+		
+		if ( max_index != -1 ) {
+			return colors[max_index]+" is the major color";
+		}
+		else {
+			return "No major color";
+		}
+		
+	}
+	
 	public static void main( String args[] ) {
 		
 		BufferedImage input = UtilImageIO.loadImage("res/img.jpg");
-		 
-		// Uncomment lines below to run each example
- 
+		  
 		List<Integer> list = Methodes.getTotalRGB(input);
 		for ( int i=0; i<list.size(); i++) {
 			System.out.println(i+" --> "+list.get(i));
@@ -49,15 +66,9 @@ public class AnalyseurImage {
 			System.out.println(i+" --> "+listp.get(i)+" %");
 		}
 		
-		Methodes.convertBufferedToRGB( input );
+		AnalyseurImage ia = new AnalyseurImage();
+		System.out.println("AnaS : "+ia.analyse_string( input ));
 
-		
-		/*
-		File f = new File("res/img.jpg");
-		
-		
-		this.analyse(   );
-		*/
 	}
 	
 }
